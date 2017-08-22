@@ -22,8 +22,8 @@ function main()
     
     
     %% rotate image
-    I45 = imrotate(I, 45);
-    I90 = imrotate(I,90);
+%     I45 = imrotate(I, 45);
+%     I90 = imrotate(I,90);
     
     
     
