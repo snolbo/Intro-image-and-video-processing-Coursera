@@ -1,76 +1,5 @@
-
-
-%% Implementation is not performed as most efficient as purpose is to apply algorithms seperatively. Also I fucking hate typeconverstion in Matlab
-function main()
-    
-I = imread('chaplin.jpg'); I = rgb2gray(I);
-qf = 50;
-N = 8;
-
-% Test block
-% I = [5	176	193	168	168	170	167	165;
-% 6	176	158	172	162	177	168	151;
-% 5	167	172	232	158	61	145	214;
-% 33	179	169	174	5	5	135	178;
-% 8	104	180	178	172	197	188	169;
-% 63	5	102	101	160	142	133	139;
-% 51	47	63	5	180	191	165	5;
-% 49	53	43	5	184	170	168	74];
-
-
-I = I - 127; %% translate pixel value by -127 to center the intensities about the value 0 to simple transformation and quantization steps
-
-
-%% Preprocessing - Turn image into 8x8 blocks of pixels
-[row, col] = size(I);
-blockRows = row / N;
-blockCols = col/N;
-
-
-index = @(x) (x-1)*N + 1: x*N;
-
-
-%% Transformation - Compute DCT of all 8x8 blocks and save them in new matrix
-DCTMatrix = zeros(row, col);
-for i = 1:blockRows
-    for j = 1:blockCols
-        DCTMatrix(index(i),index(j)) = dct2(I(index(i), index(j)));
-    end
-end    
-
-
-
-%% Quantization -  Eliminate unimportant coefficients in DCT'ed 8x8 blocks
-
-Tb =[ % this is the jpeg quantization matrix. Developed with magic and wizardry
-    16    11    10    16    24    40    51    61
-    12    12    14    19    26    58    60    55
-    14    13    16    24    40    57    69    56
-    14    17    22    29    51    87    80    62
-    18    22    37    56    68   109   103    77
-    24    35    55    64    81   104   113    92
-    49    64    78    87   103   121   120   101
-    79    92    95    98   112   100   103    99];
-
-% depending in the quality for compression Q (1-100), find scaling factor
-qScale = 0;
-if qf < 50
-    qScale = floor(5000/qf);
-else
-    qScale = 200 - 2*qf;
-end
-% Scaling the quantization matrix depening on quality factor
-Ts = (Tb *qScale)/100;
-Ts(Ts == 0) = 1; % prevent dividing by 0
-
-% Applying the scaled quantization matrix to all DCT'ed 8x8 blocks
-QuantDCT = zeros(row, col);
-for i = 1:blockRows
-    for j = 1:blockCols
-        QuantDCT(index(i),index(j)) = round(DCTMatrix(index(i), index(j))./Ts);
-    end
-end  
-    
+function = encoding( QuantDCT )
+%ENCODING.. NOT FINISHED DECODING
 
 
 
@@ -208,45 +137,6 @@ for i = 1:blockRows
 end
 
 
-
-
-end
-
-% performs a zigzag search, starting from upper left, going to the right
-% (1,2) then in a diagonal zigzag until it reaches the first 0, then
-% returns
-function elements = zigZagSearch(matrix)
-    elements = [];
-    if(matrix(1,1) == 0)
-        elements = [0];
-        return
-    end
-    elements(1) = matrix(1,1);
-    r = 1; c = 2;
-    goLeft = true;
-    a = 2;
-    while(matrix(r,c) ~= 0)
-        elements(a) = matrix(r,c);
-        if goLeft && c == 1
-            goLeft = false;
-            r = r + 1;
-            continue;
-        elseif ~goLeft && r == 1
-            goLeft = true;
-            c = c + 1;
-            continue;
-        end
-        
-        if(goLeft)
-            r = r + 1; c = c - 1;
-        else
-            r = r - 1; c = c + 1;
-        end
-        a = a+1;
-    end
-end
-
-function k = zigZagPlaceCoefficients(coefficcients, k)
 
 
 end
